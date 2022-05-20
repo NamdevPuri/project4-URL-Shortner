@@ -37,7 +37,7 @@ const isValidRequestBody = function (requestBody) {
 }
 
 
-const baseUrl= 'http://localhost:3000/'
+const baseUrl= 'http://localhost:3000'
 
 //*********************************************// Short Url //************************************************* */
 
@@ -73,7 +73,6 @@ const shortUrl = async function ( req, res ) {
     // Generate :urlCode
     const urlCode = shortid.generate(longUrl)
     
-    // check: if urlCode is already exist in DB
     let isUrlCode = await urlModel.findOne({urlCode:urlCode})
     if(isUrlCode){
         return res.status(400).send({status:false,message:"already exist"})
@@ -89,7 +88,6 @@ const shortUrl = async function ( req, res ) {
     // creating: document
     const createUrl=await urlModel.create(data)
 
-// const saveData = createUrl.longUrl
     await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
     await SET_ASYNC(`${longUrl}`, JSON.stringify(data.longUrl))
 
