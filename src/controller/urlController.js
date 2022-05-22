@@ -6,8 +6,6 @@ const redis = require('redis'); //here util its a package and promisify is a met
 const {promisify} = require('util') // promisify convert callback function to promise in redis
 
 
-
-
 // connect to redis
 const redisClient = redis.createClient(18325,  // Port No
     "redis-18325.c264.ap-south-1-1.ec2.cloud.redislabs.com", // Id of redis
@@ -23,12 +21,6 @@ redisClient.on("connect", async function () {
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
-
-const isValid= function(value){
-    if(typeof (value)==='undefined' || typeof (value)==='null') return false
-    if(typeof (value) === 'string' && value.trim().length > 0) return false
-    return true
-}
 
 
 const baseUrl= 'http://localhost:3000'
@@ -80,11 +72,8 @@ const shortUrl = async function ( req, res ) {
         await SET_ASYNC(urlCode.toLowerCase(),longUrl)
 
         return res.status(201).send({msg:"you already created shortUrl for this longUrl", data:createUrl})
-    
     }
-
-}  
-catch (err){
+} catch (err){
    res.status(500).send({status:false, msg:err.massage})
 }
    } else {
@@ -103,22 +92,21 @@ const getShortUrl= async function (req,res){
     if(cachedLongUrl){
        // console.log("cachedLongUrl=",cachedLongUrl )
 
-      return res.status(302).redirect(cachedLongUrl)
-       
+      return res.status(302).redirect(cachedLongUrl)   
     }
     else {
         // db call
       const url = await urlModel.findOne({urlCode:req.params.urlCode})
   
     if(url) {
-    const getlongUrl = url.longUrl
-     return res.status(302).redirect(getlongUrl) // 302 stand for successful redirection
-    
-    }else{
-        return res.status(404).send({status:false,message:"urlcode not found"})
 
+     return res.status(302).redirect(url.longUrl) // 302 stand for successful redirection
+
+    }else{
+
+        return res.status(404).send({status:false,message:"urlcode not found"})
     }
-} 
+}    
 } catch(err) {   
     console.log(err);
     res.status(500).send({status:false, msg:err.massage})
